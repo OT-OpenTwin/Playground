@@ -1,24 +1,30 @@
 #include "MainWindow.h"
 
 // OpenTwin header
+#include "OTBlockEditor/BlockPickerWidget.h"
+#include "OTBlockEditor/BlockNetworkEditor.h"
 
 // Qt header
 #include <QtCore/qsettings.h>
 #include <QtWidgets/qdockwidget.h>
 #include <QtWidgets/qtextedit.h>
 #include <QtWidgets/qmenubar.h>
-MainWindow * g_instance{ nullptr };
+static MainWindow * g_instance{ nullptr };
 
 #include <thread>
 
-
-
 void MainWindow::createOwnWidgets(void) {
-	//g_editor = new ot::BlockNetworkEditor;
+	// Create widgets
+	ot::BlockPicker* blockPicker = new ot::BlockPicker("Block Picker");
+	blockPicker->setObjectName("BlockPicker");
+	addDockWidget(Qt::LeftDockWidgetArea, blockPicker);
 
+	ot::BlockNetworkEditor* networkEditor = new ot::BlockNetworkEditor;
+
+	m_tabWidget->addTab(networkEditor, "Block Editor");
+
+	// Fill data
 	
-
-	//m_tabWidget->addTab(g_editor, "Block Editor");
 }
 
 void MainWindow::test(void) {

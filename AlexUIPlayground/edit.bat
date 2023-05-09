@@ -2,7 +2,9 @@
 
 REM This script requires the following environment variables to be set:
 REM 1. OPENTWIN_DEV_ROOT
-REM 2. DEVENV_ROOT_2022
+REM 2. OPENTWIN_THIRDPARTY_ROOT
+REM 3. OPENTWIN_PLAYGROUND_ROOT
+REM 4. DEVENV_ROOT_2022
 
 IF "%OPENTWIN_DEV_ROOT%" == "" (
 	ECHO Please specify the following environment variables: OPENTWIN_DEV_ROOT
