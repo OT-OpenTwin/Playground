@@ -1,21 +1,27 @@
 #include "MainWindow.h"
 
-// OpenTwin header
-#include "OTBlockEditor/BlockPickerWidget.h"
-#include "OTBlockEditor/BlockNetworkEditor.h"
-
 // Qt header
 #include <QtCore/qsettings.h>
 #include <QtWidgets/qdockwidget.h>
 #include <QtWidgets/qtextedit.h>
 #include <QtWidgets/qmenubar.h>
-static MainWindow * g_instance{ nullptr };
 
 #include <thread>
 
+static MainWindow * g_instance{ nullptr };
+
+#include "OTBlockEditor/BlockPickerDockWidget.h"
+#include "OTBlockEditor/BlockPickerWidget.h"
+#include "OTBlockEditor/BlockNetworkEditor.h"
+
+#include "OTBlockEditorAPI/BlockCategoryConfiguration.h"
+#include "OTBlockEditorAPI/BlockConfiguration.h"
+
+#include <list>
+
 void MainWindow::createOwnWidgets(void) {
 	// Create widgets
-	ot::BlockPicker* blockPicker = new ot::BlockPicker("Block Picker");
+	ot::BlockPickerDockWidget* blockPicker = new ot::BlockPickerDockWidget("Block Picker");
 	blockPicker->setObjectName("BlockPicker");
 	addDockWidget(Qt::LeftDockWidgetArea, blockPicker);
 
@@ -24,7 +30,26 @@ void MainWindow::createOwnWidgets(void) {
 	m_tabWidget->addTab(networkEditor, "Block Editor");
 
 	// Fill data
-	
+	ot::BlockCategoryConfiguration* root1 = new ot::BlockCategoryConfiguration("r1", "Root 1");
+	ot::BlockCategoryConfiguration* r1A = new ot::BlockCategoryConfiguration("A", "A");
+	ot::BlockCategoryConfiguration* r1B = new ot::BlockCategoryConfiguration("B", "B");
+	root1->addChild(r1A);
+	root1->addChild(r1B);
+
+	ot::BlockCategoryConfiguration* root2 = new ot::BlockCategoryConfiguration("r2", "Root 2");
+	ot::BlockCategoryConfiguration* r2C = new ot::BlockCategoryConfiguration("C", "C");
+	root2->addChild(r2C);
+
+	ot::BlockCategoryConfiguration* root3 = new ot::BlockCategoryConfiguration("r3", "Root 3");
+	ot::BlockCategoryConfiguration* r3D = new ot::BlockCategoryConfiguration("D", "D");
+	root3->addChild(r3D);
+
+	std::list<ot::BlockCategoryConfiguration*> rootItems;
+	rootItems.push_back(root1);
+	rootItems.push_back(root2);
+	rootItems.push_back(root3);
+
+	blockPicker->addTopLevelCategories(rootItems);
 }
 
 void MainWindow::test(void) {
