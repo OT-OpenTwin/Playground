@@ -16,8 +16,25 @@ static MainWindow * g_instance{ nullptr };
 
 #include "OTBlockEditorAPI/BlockCategoryConfiguration.h"
 #include "OTBlockEditorAPI/BlockConfiguration.h"
+#include "OTBlockEditorAPI/BlockLayers.h"
+
+#include "OTGui/FillPainter2D.h"
+#include "OTGui/LinearGradientPainter2D.h"
 
 #include <list>
+
+ot::BlockConfiguration* createTestBlockConfig(void) {
+	ot::BlockConfiguration* block = new ot::BlockConfiguration("Test", "Test");
+	block->setWidthLimits(ot::LengthLimitation(50, -1));
+	block->setHeightLimits(ot::LengthLimitation(40, -1));
+
+	ot::RectangleBlockLayerConfiguration* bgLayer = new ot::RectangleBlockLayerConfiguration(new ot::FillPainter2D(ot::Color(255, 128, 0)), ot::Color(0, 0, 0), 2, 5);
+	ot::TextBlockLayerConfiguration* layer0 = new ot::TextBlockLayerConfiguration("Hello World!", 12, ot::Color(0, 0, 255));
+	block->addLayer(bgLayer);
+	block->addLayer(layer0);
+
+	return block;
+}
 
 void MainWindow::createOwnWidgets(void) {
 	// Create widgets
@@ -38,6 +55,7 @@ void MainWindow::createOwnWidgets(void) {
 
 	ot::BlockCategoryConfiguration* root2 = new ot::BlockCategoryConfiguration("r2", "Root 2");
 	ot::BlockCategoryConfiguration* r2C = new ot::BlockCategoryConfiguration("C", "C");
+	r2C->addItem(createTestBlockConfig());
 	root2->addChild(r2C);
 
 	ot::BlockCategoryConfiguration* root3 = new ot::BlockCategoryConfiguration("r3", "Root 3");
@@ -49,6 +67,7 @@ void MainWindow::createOwnWidgets(void) {
 	rootItems.push_back(root2);
 	rootItems.push_back(root3);
 
+	// Apply config
 	blockPicker->addTopLevelCategories(rootItems);
 }
 
