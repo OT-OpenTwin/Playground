@@ -12,7 +12,11 @@ static MainWindow * g_instance{ nullptr };
 
 #include "OTBlockEditor/BlockPickerDockWidget.h"
 #include "OTBlockEditor/BlockPickerWidget.h"
+#include "OTBlockEditor/BlockNetwork.h"
 #include "OTBlockEditor/BlockNetworkEditor.h"
+#include "OTBlockEditor/BlockFactory.h"
+#include "OTBlockEditor/BlockLayer.h"
+#include "OTBlockEditor/DefaultBlock.h"
 
 #include "OTBlockEditorAPI/BlockCategoryConfiguration.h"
 #include "OTBlockEditorAPI/BlockConfiguration.h"
@@ -25,11 +29,16 @@ static MainWindow * g_instance{ nullptr };
 
 ot::BlockConfiguration* createTestBlockConfig(void) {
 	ot::BlockConfiguration* block = new ot::BlockConfiguration("Test", "Test");
-	block->setWidthLimits(ot::LengthLimitation(50, -1));
+	block->setWidthLimits(ot::LengthLimitation(160, -1));
 	block->setHeightLimits(ot::LengthLimitation(40, -1));
+	block->setIsUserMoveable(true);
 
-	ot::RectangleBlockLayerConfiguration* bgLayer = new ot::RectangleBlockLayerConfiguration(new ot::FillPainter2D(ot::Color(255, 128, 0)), ot::Color(0, 0, 0), 2, 5);
-	ot::TextBlockLayerConfiguration* layer0 = new ot::TextBlockLayerConfiguration("Hello World!", 12, ot::Color(0, 0, 255));
+	ot::RectangleBlockLayerConfiguration* bgLayer = new ot::RectangleBlockLayerConfiguration(new ot::FillPainter2D(ot::Color(255, 128, 0)), ot::Color(0, 0, 0), 2, 20);
+	ot::TextBlockLayerConfiguration* layer0 = new ot::TextBlockLayerConfiguration("Hello World!", ot::Color(0, 0, 255));
+	layer0->setMargins(5., 5., 5., 5.);
+	ot::Font f = layer0->textFont();
+	f.setSize(8);
+	layer0->setTextFont(f);
 	block->addLayer(bgLayer);
 	block->addLayer(layer0);
 
@@ -69,6 +78,13 @@ void MainWindow::createOwnWidgets(void) {
 
 	// Apply config
 	blockPicker->addTopLevelCategories(rootItems);
+
+	// Test block
+	ot::BlockConfiguration * testBlockConfig = createTestBlockConfig();
+	ot::Block * testBlock = ot::BlockFactory::blockFromConfig(testBlockConfig);
+	delete testBlockConfig;
+
+	networkEditor->network()->addBlock(testBlock);
 }
 
 void MainWindow::test(void) {
