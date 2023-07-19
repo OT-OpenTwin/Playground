@@ -28,19 +28,39 @@ static MainWindow * g_instance{ nullptr };
 #include <list>
 
 ot::BlockConfiguration* createTestBlockConfig(void) {
+	// Create a custom block
 	ot::BlockConfiguration* block = new ot::BlockConfiguration("Test", "Test");
-	block->setWidthLimits(ot::LengthLimitation(160, -1));
+
+	// ###   ###   ###   ###   ###   ###   ###   ###   ###   ###   ###   ###   ###   ###
+
+	// Define block size limitations (min, max)
+	block->setWidthLimits(ot::LengthLimitation(80, -1));
 	block->setHeightLimits(ot::LengthLimitation(40, -1));
+
+	// Allow the user to use the block
 	block->setIsUserMoveable(true);
 
-	ot::RectangleBlockLayerConfiguration* bgLayer = new ot::RectangleBlockLayerConfiguration(new ot::FillPainter2D(ot::Color(255, 128, 0)), ot::Color(0, 0, 0), 2, 20);
-	ot::TextBlockLayerConfiguration* layer0 = new ot::TextBlockLayerConfiguration("Hello World!", ot::Color(0, 0, 255));
-	layer0->setMargins(5., 5., 5., 5.);
+	// ###   ###   ###   ###   ###   ###   ###   ###   ###   ###   ###   ###   ###   ###
+
+	// Create a background layer with a rectangcular shape and rounded border
+	ot::RectangleBlockLayerConfiguration* bgLayer = new ot::RectangleBlockLayerConfiguration(new ot::FillPainter2D(ot::Color(0, 128, 255)), ot::Color(0, 0, 0), 2, 50);
+	block->addLayer(bgLayer);
+
+	// ###   ###   ###   ###   ###   ###   ###   ###   ###   ###   ###   ###   ###   ###
+
+	// Create text layer
+	ot::TextBlockLayerConfiguration* layer0 = new ot::TextBlockLayerConfiguration("Hello World!", ot::Color(255, 0, 0));
+	layer0->setMargins(10., 5., 5., 5.);
+
+	// Setup font for text layer
 	ot::Font f = layer0->textFont();
 	f.setSize(8);
 	layer0->setTextFont(f);
-	block->addLayer(bgLayer);
+
+	// Add text layer
 	block->addLayer(layer0);
+
+	// ###   ###   ###   ###   ###   ###   ###   ###   ###   ###   ###   ###   ###   ###
 
 	return block;
 }
@@ -126,9 +146,6 @@ void MainWindow::appendOutput(const QString& _text) {
 
 void MainWindow::slotInitialize(void) {
 	createOwnWidgets();
-
-	QSettings s("OpenTwin", "AlexUIPlayground");
-	if (s.contains("WindowState"))	restoreState(s.value("WindowState", QByteArray()).toByteArray());
 }
 
 MainWindow::MainWindow()
@@ -166,6 +183,8 @@ MainWindow::MainWindow()
 		// First start
 		showMaximized();
 	}
+
+	if (s.contains("WindowState"))	restoreState(s.value("WindowState", QByteArray()).toByteArray());
 
 	QMetaObject::invokeMethod(this, &MainWindow::slotInitialize, Qt::QueuedConnection);
 }
