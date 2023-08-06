@@ -1,5 +1,8 @@
 #pragma once
 
+// OpenTwin header
+#include "OpenTwinCore/Logger.h"
+
 #include <QtWidgets/qmainwindow.h>
 
 class QDockWidget;
@@ -7,7 +10,7 @@ class QTextEdit;
 class QTabWidget;
 class QMenuBar;
 
-class MainWindow : public QMainWindow
+class MainWindow : public QMainWindow, public ot::AbstractLogNotifier
 {
     Q_OBJECT
 public:
@@ -28,6 +31,9 @@ public:
 
 	void queueAppendOutput(const QString& _text);
 
+	//! @brief Called when the a log message was created
+	virtual void log(const ot::LogMessage& _message) override;
+
 public slots:
 	void appendOutput(const QString& _text);
 
@@ -39,6 +45,9 @@ private:
 
 	QDockWidget *		m_outputDock;
 	QTextEdit *			m_output;
+
+	QDockWidget* m_logDock;
+	QTextEdit* m_log;
 
 	QTabWidget *		m_tabWidget;
 

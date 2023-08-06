@@ -2,109 +2,114 @@
 
 // Qt header
 #include <QtCore/qsettings.h>
+#include "OTGui/FillPainter2D.h"
+#include "OTGui/LinearGradientPainter2D.h"
+#include "OTGui/GraphicsItemCfg.h"
+#include "OTGui/GraphicsLayoutItemCfg.h"
+#include "OTWidgets/GraphicsView.h"
+#include "OTWidgets/GraphicsScene.h"
+#include "OTWidgets/GraphicsItem.h"
+#include "OTWidgets/GraphicsLayoutItem.h"
+#include "OTWidgets/GraphicsFactory.h"
+
+#include "OTBlockEditor/BlockNetworkEditor.h"
+
 #include <QtWidgets/qdockwidget.h>
 #include <QtWidgets/qtextedit.h>
 #include <QtWidgets/qmenubar.h>
+#include <QtWidgets/qgraphicsproxywidget.h>
+
 
 #include <thread>
 
 static MainWindow * g_instance{ nullptr };
 
-#include "OTBlockEditor/BlockPickerDockWidget.h"
-#include "OTBlockEditor/BlockPickerWidget.h"
-#include "OTBlockEditor/BlockNetwork.h"
-#include "OTBlockEditor/BlockNetworkEditor.h"
-#include "OTBlockEditor/BlockFactory.h"
-#include "OTBlockEditor/BlockLayer.h"
-#include "OTBlockEditor/DefaultBlock.h"
 
-#include "OTBlockEditorAPI/BlockCategoryConfiguration.h"
-#include "OTBlockEditorAPI/BlockConfiguration.h"
-#include "OTBlockEditorAPI/BlockLayers.h"
-
-#include "OTGui/FillPainter2D.h"
-#include "OTGui/LinearGradientPainter2D.h"
 
 #include <list>
+#include <sstream>
 
-ot::BlockConfiguration* createTestBlockConfig(void) {
-	// Create a custom block
-	ot::BlockConfiguration* block = new ot::BlockConfiguration("Test", "Test");
+ot::GraphicsItemCfg* optA(void) {
+	ot::GraphicsVBoxLayoutItemCfg* root = new ot::GraphicsVBoxLayoutItemCfg;
+	root->setSize(ot::Size2D(100, 100));
+	ot::GraphicsHBoxLayoutItemCfg* mid = new ot::GraphicsHBoxLayoutItemCfg;
 
-	// ###   ###   ###   ###   ###   ###   ###   ###   ###   ###   ###   ###   ###   ###
+	ot::GraphicsTextItemCfg* title = new ot::GraphicsTextItemCfg;
+	title->setText("Hey");
+	title->setTextColor(ot::Color(255, 0, 0));
+	title->setSize(ot::Size2D(200, 100));
 
-	// Define block size limitations (min, max)
-	block->setWidthLimits(ot::LengthLimitation(80, -1));
-	block->setHeightLimits(ot::LengthLimitation(40, -1));
+	ot::GraphicsRectangularItemCfg* left = new ot::GraphicsRectangularItemCfg;
+	left->setSize(ot::Size2D(20, 20));
 
-	// Allow the user to use the block
-	block->setIsUserMoveable(true);
+	ot::GraphicsRectangularItemCfg* right = new ot::GraphicsRectangularItemCfg;
+	right->setSize(ot::Size2D(20, 20));
 
-	// ###   ###   ###   ###   ###   ###   ###   ###   ###   ###   ###   ###   ###   ###
+	mid->addChildItem(left);
+	mid->addStrech(1);
+	mid->addChildItem(right);
 
-	// Create a background layer with a rectangcular shape and rounded border
-	ot::RectangleBlockLayerConfiguration* bgLayer = new ot::RectangleBlockLayerConfiguration(new ot::FillPainter2D(ot::Color(0, 128, 255)), ot::Color(0, 0, 0), 2, 50);
-	block->addLayer(bgLayer);
+	root->addChildItem(title);
+	root->addChildItem(mid);
+	
+	return root;
+}
 
-	// ###   ###   ###   ###   ###   ###   ###   ###   ###   ###   ###   ###   ###   ###
+ot::GraphicsItemCfg* optB() {
+	return nullptr;
+}
 
-	// Create text layer
-	ot::TextBlockLayerConfiguration* layer0 = new ot::TextBlockLayerConfiguration("Hello World!", ot::Color(255, 0, 0));
-	layer0->setMargins(10., 5., 5., 5.);
-
-	// Setup font for text layer
-	ot::Font f = layer0->textFont();
-	f.setSize(8);
-	layer0->setTextFont(f);
-
-	// Add text layer
-	block->addLayer(layer0);
-
-	// ###   ###   ###   ###   ###   ###   ###   ###   ###   ###   ###   ###   ###   ###
-
-	return block;
+void addChildsToScene(QGraphicsScene* _scene, QGraphicsItemGroup * _group, QGraphicsLayout* _layout) {
+	for (int i = 0; i < _layout->count(); i++) {
+		auto itm = _layout->itemAt(i);
+		if (itm) {
+			QGraphicsItem* citm = dynamic_cast<QGraphicsItem*>(itm);
+			QGraphicsLayout* clitm = dynamic_cast<QGraphicsLayout*>(itm);
+			if (citm) {
+				_scene->addItem(citm);
+				_group->addToGroup(citm);
+			}
+			else if (clitm) addChildsToScene(_scene, _group, clitm);
+			else {
+				otAssert(0, "was weiss ich");
+			}
+		}
+	}
 }
 
 void MainWindow::createOwnWidgets(void) {
-	// Create widgets
-	ot::BlockPickerDockWidget* blockPicker = new ot::BlockPickerDockWidget("Block Picker");
-	blockPicker->setObjectName("BlockPicker");
-	addDockWidget(Qt::LeftDockWidgetArea, blockPicker);
+	ot::BlockNetworkEditor* editor = new ot::BlockNetworkEditor;
 
-	ot::BlockNetworkEditor* networkEditor = new ot::BlockNetworkEditor;
+	m_tabWidget->addTab(editor, "Editor");
+	QGraphicsItemGroup* group = new QGraphicsItemGroup;
+	group->setFlag(QGraphicsItem::ItemIsMovable, true);
+	group->setFlag(QGraphicsItem::ItemIsSelectable, true);
 
-	m_tabWidget->addTab(networkEditor, "Block Editor");
+	ot::GraphicsItem* itm = ot::GraphicsFactory::itemFromConfig(optA());
 
-	// Fill data
-	ot::BlockCategoryConfiguration* root1 = new ot::BlockCategoryConfiguration("r1", "Root 1");
-	ot::BlockCategoryConfiguration* r1A = new ot::BlockCategoryConfiguration("A", "A");
-	ot::BlockCategoryConfiguration* r1B = new ot::BlockCategoryConfiguration("B", "B");
-	root1->addChild(r1A);
-	root1->addChild(r1B);
+	if (itm) {
+		QGraphicsItem* citm = dynamic_cast<QGraphicsItem*>(itm);
+		QGraphicsLayout* clitm = dynamic_cast<QGraphicsLayout*>(itm);
+		if (citm) {
+			editor->scene()->addItem(citm);
+		}
+		else if (clitm) {
+			QGraphicsWidget* container = new QGraphicsWidget;
+			container->setLayout(clitm);
+			addChildsToScene(editor->scene(), group, clitm);
+			editor->scene()->addItem(group);
+			container->setFlag(QGraphicsItem::ItemIsMovable, true);
+			container->setFlag(QGraphicsItem::ItemIsSelectable, true);
+			editor->scene()->addItem(container);
+		}
+		else {
+			OT_LOG_EA("Cast fail");
+		}
+	}
+	else {
+		OT_LOG_EA("Factory fail");
+	}
 
-	ot::BlockCategoryConfiguration* root2 = new ot::BlockCategoryConfiguration("r2", "Root 2");
-	ot::BlockCategoryConfiguration* r2C = new ot::BlockCategoryConfiguration("C", "C");
-	r2C->addItem(createTestBlockConfig());
-	root2->addChild(r2C);
-
-	ot::BlockCategoryConfiguration* root3 = new ot::BlockCategoryConfiguration("r3", "Root 3");
-	ot::BlockCategoryConfiguration* r3D = new ot::BlockCategoryConfiguration("D", "D");
-	root3->addChild(r3D);
-
-	std::list<ot::BlockCategoryConfiguration*> rootItems;
-	rootItems.push_back(root1);
-	rootItems.push_back(root2);
-	rootItems.push_back(root3);
-
-	// Apply config
-	blockPicker->addTopLevelCategories(rootItems);
-
-	// Test block
-	ot::BlockConfiguration * testBlockConfig = createTestBlockConfig();
-	ot::Block * testBlock = ot::BlockFactory::blockFromConfig(testBlockConfig);
-	delete testBlockConfig;
-
-	networkEditor->network()->addBlock(testBlock);
 }
 
 void MainWindow::test(void) {
@@ -140,22 +145,45 @@ void MainWindow::queueAppendOutput(const QString& _text) {
 	QMetaObject::invokeMethod(this, "appendOutput", Qt::QueuedConnection, Q_ARG(const QString&, _text));
 }
 
+void MainWindow::log(const ot::LogMessage& _message) {
+	std::stringstream stream;
+	stream << _message;
+	m_log->append(QString::fromStdString(stream.str()));
+}
+
 void MainWindow::appendOutput(const QString& _text) {
 	m_output->append(_text);
 }
 
 void MainWindow::slotInitialize(void) {
-	createOwnWidgets();
+	try {
+		createOwnWidgets();
+	}
+	catch (const std::exception& _e) {
+		appendOutput("\n[ERROR] Orror while creating own widgets:\n" + QString(_e.what()) + "\n\n");
+	}
+	catch (...) {
+		appendOutput("\n[ERROR] Orror while creating own widgets:\n[FATAL] Unknown error\n\n");
+	}
 }
 
 MainWindow::MainWindow()
 {
+	this->AbstractLogNotifier::deleteLater(true);
+	ot::LogDispatcher::instance().addReceiver(this);
+
 	// Create output
 	m_outputDock = new QDockWidget("Output");
 	m_output = new QTextEdit;
 	m_outputDock->setWidget(m_output);
 	m_outputDock->setObjectName("UI_DOCK_Output");
 	addDockWidget(Qt::BottomDockWidgetArea, m_outputDock);
+
+	m_logDock = new QDockWidget("Log");
+	m_log = new QTextEdit;
+	m_logDock->setWidget(m_log);
+	m_logDock->setObjectName("UI_DOCK_LOG");
+	tabifyDockWidget(m_outputDock, m_logDock);
 
 	// Create tab widget
 	m_tabWidget = new QTabWidget;
