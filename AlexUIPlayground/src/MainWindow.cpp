@@ -12,104 +12,132 @@
 #include "OTWidgets/GraphicsLayoutItem.h"
 #include "OTWidgets/GraphicsFactory.h"
 
-#include "OTBlockEditor/BlockNetworkEditor.h"
+
+#include "OpenTwinCore/otAssert.h"
+#include "OpenTwinCore/SimpleFactory.h"
+#include "OpenTwinCommunication/ActionTypes.h"
+#include "OTGui/GraphicsItemCfg.h"
+#include "OTGui/GraphicsCollectionCfg.h"
+#include "OTGui/GraphicsLayoutItemCfg.h"
+#include "OTGui/GraphicsEditorPackage.h"
+#include "OTWidgets/GraphicsItem.h"
+#include "OTWidgets/GraphicsLayoutItem.h"
 
 #include <QtWidgets/qdockwidget.h>
 #include <QtWidgets/qtextedit.h>
 #include <QtWidgets/qmenubar.h>
 #include <QtWidgets/qgraphicsproxywidget.h>
-
+#include <QtWidgets/qmessagebox.h>
 
 #include <thread>
 
 static MainWindow * g_instance{ nullptr };
 
-
-
 #include <list>
 #include <sstream>
 
-ot::GraphicsItemCfg* optA(void) {
-	ot::GraphicsVBoxLayoutItemCfg* root = new ot::GraphicsVBoxLayoutItemCfg;
-	root->setSize(ot::Size2D(100, 100));
-	ot::GraphicsHBoxLayoutItemCfg* mid = new ot::GraphicsHBoxLayoutItemCfg;
+ot::GraphicsItemCfg* createTestBlock(const std::string& _name) {
+	ot::GraphicsVBoxLayoutItemCfg* centralLayout = new ot::GraphicsVBoxLayoutItemCfg;
 
 	ot::GraphicsTextItemCfg* title = new ot::GraphicsTextItemCfg;
-	title->setText("Hey");
-	title->setTextColor(ot::Color(255, 0, 0));
-	title->setSize(ot::Size2D(200, 100));
+	title->setName(_name);
+	title->setText(_name);
+	title->setBorder(ot::Border(ot::Color(rand() % 255, rand() % 255, rand() % 255), 2));
 
-	ot::GraphicsRectangularItemCfg* left = new ot::GraphicsRectangularItemCfg;
-	left->setSize(ot::Size2D(20, 20));
+	ot::GraphicsHBoxLayoutItemCfg* midLayout = new ot::GraphicsHBoxLayoutItemCfg;
 
-	ot::GraphicsRectangularItemCfg* right = new ot::GraphicsRectangularItemCfg;
-	right->setSize(ot::Size2D(20, 20));
+	ot::GraphicsRectangularItemCfg* leftRect = new ot::GraphicsRectangularItemCfg;
+	leftRect->setSize(ot::Size2D(20, 20));
+	ot::GraphicsRectangularItemCfg* rightRect = new ot::GraphicsRectangularItemCfg;
+	rightRect->setSize(ot::Size2D(30, 30));
 
-	mid->addChildItem(left);
-	mid->addStrech(1);
-	mid->addChildItem(right);
+	midLayout->addChildItem(leftRect);
+	midLayout->addStrech(1);
+	midLayout->addChildItem(rightRect);
 
-	root->addChildItem(title);
-	root->addChildItem(mid);
-	
-	return root;
+	centralLayout->addChildItem(title);
+	centralLayout->addChildItem(midLayout, 1);
+
+	return centralLayout;
 }
 
-ot::GraphicsItemCfg* optB() {
-	return nullptr;
-}
+ot::GraphicsItemCfg* createTestBlock2(const std::string& _name) {
+	ot::GraphicsVBoxLayoutItemCfg* centralLayout = new ot::GraphicsVBoxLayoutItemCfg;
 
-void addChildsToScene(QGraphicsScene* _scene, QGraphicsItemGroup * _group, QGraphicsLayout* _layout) {
-	for (int i = 0; i < _layout->count(); i++) {
-		auto itm = _layout->itemAt(i);
-		if (itm) {
-			QGraphicsItem* citm = dynamic_cast<QGraphicsItem*>(itm);
-			QGraphicsLayout* clitm = dynamic_cast<QGraphicsLayout*>(itm);
-			if (citm) {
-				_scene->addItem(citm);
-				_group->addToGroup(citm);
-			}
-			else if (clitm) addChildsToScene(_scene, _group, clitm);
-			else {
-				otAssert(0, "was weiss ich");
-			}
-		}
-	}
+	ot::GraphicsTextItemCfg* title = new ot::GraphicsTextItemCfg;
+	title->setName(_name);
+	title->setText(_name);
+	title->setBorder(ot::Border(ot::Color(rand() % 255, rand() % 255, rand() % 255), 2));
+
+	ot::GraphicsHBoxLayoutItemCfg* midLayout = new ot::GraphicsHBoxLayoutItemCfg;
+
+	ot::GraphicsRectangularItemCfg* leftRect = new ot::GraphicsRectangularItemCfg;
+	ot::GraphicsRectangularItemCfg* rightRect = new ot::GraphicsRectangularItemCfg;
+
+	midLayout->addChildItem(leftRect);
+	midLayout->addStrech(1);
+	midLayout->addChildItem(rightRect);
+
+	centralLayout->addChildItem(title);
+	centralLayout->addChildItem(midLayout, 1);
+
+	return centralLayout;
 }
 
 void MainWindow::createOwnWidgets(void) {
-	ot::BlockNetworkEditor* editor = new ot::BlockNetworkEditor;
+	ot::GraphicsView* editor = new ot::GraphicsView;
+	ot::GraphicsScene* sc = new ot::GraphicsScene;
+	editor->setScene(sc);
 
 	m_tabWidget->addTab(editor, "Editor");
-	QGraphicsItemGroup* group = new QGraphicsItemGroup;
-	group->setFlag(QGraphicsItem::ItemIsMovable, true);
-	group->setFlag(QGraphicsItem::ItemIsSelectable, true);
 
-	ot::GraphicsItem* itm = ot::GraphicsFactory::itemFromConfig(optA());
+	ot::GraphicsEditorPackage pckg("TestPackage", "Test title");
+	ot::GraphicsCollectionCfg* a = new ot::GraphicsCollectionCfg("A", "A");
+	ot::GraphicsCollectionCfg* a1 = new ot::GraphicsCollectionCfg("1", "1");
+	//ot::GraphicsCollectionCfg* a2 = new ot::GraphicsCollectionCfg("2", "2");
+	a->addChildCollection(a1);
+	a1->addItem(createTestBlock("Alpha 1"));
+	//a->addChildCollection(a2);
+	//a2->addItem(createTestBlock2("Alpha 2"));
+	pckg.addCollection(a);
 
-	if (itm) {
-		QGraphicsItem* citm = dynamic_cast<QGraphicsItem*>(itm);
-		QGraphicsLayout* clitm = dynamic_cast<QGraphicsLayout*>(itm);
-		if (citm) {
-			editor->scene()->addItem(citm);
-		}
-		else if (clitm) {
-			QGraphicsWidget* container = new QGraphicsWidget;
-			container->setLayout(clitm);
-			addChildsToScene(editor->scene(), group, clitm);
-			editor->scene()->addItem(group);
-			container->setFlag(QGraphicsItem::ItemIsMovable, true);
-			container->setFlag(QGraphicsItem::ItemIsSelectable, true);
-			editor->scene()->addItem(container);
-		}
-		else {
-			OT_LOG_EA("Cast fail");
-		}
+	OT_rJSON_createDOC(doc);
+	OT_rJSON_createValueObject(pckgObj);
+	pckg.addToJsonObject(doc, pckgObj);
+
+	ot::rJSON::add(doc, OT_ACTION_MEMBER, OT_ACTION_CMD_UI_GRAPHICSEDITOR_CreateEmptyGraphicsEditor);
+	ot::rJSON::add(doc, OT_ACTION_PARAM_GRAPHICSEDITOR_Package, pckgObj);
+
+	std::string str = ot::rJSON::toJSON(doc);
+	OT_LOG_D("L1: " + std::to_string(str.length()));
+
+	try {
+		OT_rJSON_parseDOC(docI, str.c_str());
+
+		ot::GraphicsEditorPackage pckg("", "");
+		OT_rJSON_val o = docI.GetObject();
+		OT_rJSON_val pckgObj = o[OT_ACTION_PARAM_GRAPHICSEDITOR_Package].GetObject();
+
+		pckg.setFromJsonObject(pckgObj);
+
+		OT_rJSON_createDOC(docTest);
+		OT_rJSON_createValueObject(pckgObjTest);
+		pckg.addToJsonObject(docTest, pckgObjTest);
+
+		ot::rJSON::add(docTest, OT_ACTION_MEMBER, OT_ACTION_CMD_UI_GRAPHICSEDITOR_CreateEmptyGraphicsEditor);
+		ot::rJSON::add(docTest, OT_ACTION_PARAM_GRAPHICSEDITOR_Package, pckgObjTest);
+
+		std::string strTest = ot::rJSON::toJSON(docTest);
+		OT_LOG_D("L2: " + std::to_string(strTest.length()));
 	}
-	else {
-		OT_LOG_EA("Factory fail");
+	catch (const std::exception& _e) {
+		QMessageBox msg(QMessageBox::Warning, "Error", _e.what(), QMessageBox::Ok);
+		msg.exec();
 	}
-
+	catch (...) {
+		OT_LOG_E("Unknown error");
+	}
+	OT_LOG_D("Custom done");
 }
 
 void MainWindow::test(void) {
@@ -199,10 +227,12 @@ MainWindow::MainWindow()
 	// Restore State
 	QSettings s("OpenTwin", "AlexUIPlayground");
 	if (s.contains("IsMaximized")) {
-		move(s.value("PosX", 0).toInt(), s.value("PosY", 0).toInt());
 		bool isMax = s.value("IsMaximized", true).toBool();
-		if (isMax) showMaximized();
+		if (isMax) {
+			showMaximized();
+		}
 		else {
+			move(s.value("PosX", 0).toInt(), s.value("PosY", 0).toInt());
 			resize(s.value("SizeWidth", 800).toInt(), s.value("SizeHeight", 600).toInt());
 			showNormal();
 		}
@@ -211,6 +241,8 @@ MainWindow::MainWindow()
 		// First start
 		showMaximized();
 	}
+
+	showMaximized();
 
 	if (s.contains("WindowState"))	restoreState(s.value("WindowState", QByteArray()).toByteArray());
 
