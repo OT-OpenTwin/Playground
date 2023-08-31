@@ -1,33 +1,31 @@
 #include "MainWindow.h"
 
-// Qt header
-#include <QtCore/qsettings.h>
-#include "OTGui/FillPainter2D.h"
-#include "OTGui/LinearGradientPainter2D.h"
+#include "OpenTwinCore/otAssert.h"
+#include "OpenTwinCore/SimpleFactory.h"
+
+#include "OpenTwinCommunication/ActionTypes.h"
+
 #include "OTGui/GraphicsItemCfg.h"
 #include "OTGui/GraphicsLayoutItemCfg.h"
+#include "OTGui/GraphicsCollectionCfg.h"
+#include "OTGui/GraphicsEditorPackage.h"
+
 #include "OTWidgets/GraphicsView.h"
 #include "OTWidgets/GraphicsScene.h"
 #include "OTWidgets/GraphicsItem.h"
 #include "OTWidgets/GraphicsLayoutItem.h"
 #include "OTWidgets/GraphicsFactory.h"
+#include "OTWidgets/GraphicsPicker.h"
 
-
-#include "OpenTwinCore/otAssert.h"
-#include "OpenTwinCore/SimpleFactory.h"
-#include "OpenTwinCommunication/ActionTypes.h"
-#include "OTGui/GraphicsItemCfg.h"
-#include "OTGui/GraphicsCollectionCfg.h"
-#include "OTGui/GraphicsLayoutItemCfg.h"
-#include "OTGui/GraphicsEditorPackage.h"
-#include "OTWidgets/GraphicsItem.h"
-#include "OTWidgets/GraphicsLayoutItem.h"
-
+// Qt header
+#include <QtCore/qsettings.h>
 #include <QtWidgets/qdockwidget.h>
 #include <QtWidgets/qtextedit.h>
 #include <QtWidgets/qmenubar.h>
-#include <QtWidgets/qgraphicsproxywidget.h>
 #include <QtWidgets/qmessagebox.h>
+#include <QtWidgets/qgraphicswidget.h>
+#include <QtWidgets/qgraphicsproxywidget.h>
+#include <QtWidgets/qgraphicslinearlayout.h>
 
 #include <thread>
 
@@ -36,108 +34,86 @@ static MainWindow * g_instance{ nullptr };
 #include <list>
 #include <sstream>
 
-ot::GraphicsItemCfg* createTestBlock(const std::string& _name) {
-	ot::GraphicsVBoxLayoutItemCfg* centralLayout = new ot::GraphicsVBoxLayoutItemCfg;
+ot::GraphicsItemCfg* createTestBlockCfg1(const std::string& _name) {
+	ot::GraphicsImageItemCfg* bot = new ot::GraphicsImageItemCfg;
+	bot->setSize(ot::Size2D(100, 60));
+	bot->setName(_name + "i");
+	bot->setTitle(_name + "i");
+	bot->setImagePath("Default/BugGreen");
+	bot->setGraphicsItemFlags(ot::GraphicsItemCfg::ItemIsConnectable);
 
-	ot::GraphicsTextItemCfg* title = new ot::GraphicsTextItemCfg;
-	title->setName(_name);
-	title->setText(_name);
-	title->setBorder(ot::Border(ot::Color(rand() % 255, rand() % 255, rand() % 255), 2));
+	ot::GraphicsTextItemCfg* topA = new ot::GraphicsTextItemCfg("Senor");
+	topA->setName(_name + "tA");
+	topA->setTitle(_name + "tA");
 
-	ot::GraphicsHBoxLayoutItemCfg* midLayout = new ot::GraphicsHBoxLayoutItemCfg;
+	ot::GraphicsTextItemCfg* topB = new ot::GraphicsTextItemCfg("Buggo");
+	topB->setName(_name + "tB");
+	topB->setTitle(_name + "tB");
 
-	ot::GraphicsRectangularItemCfg* leftRect = new ot::GraphicsRectangularItemCfg;
-	leftRect->setSize(ot::Size2D(20, 20));
-	ot::GraphicsRectangularItemCfg* rightRect = new ot::GraphicsRectangularItemCfg;
-	rightRect->setSize(ot::Size2D(30, 30));
+	ot::GraphicsVBoxLayoutItemCfg* top = new ot::GraphicsVBoxLayoutItemCfg;
+	top->setName(_name + "t");
+	top->setTitle(_name + "t");
+	top->addChildItem(topA);
+	top->addChildItem(topB);
+	top->setSize(ot::Size2D(100, 50));
 
-	midLayout->addChildItem(leftRect);
-	midLayout->addStrech(1);
-	midLayout->addChildItem(rightRect);
+	ot::GraphicsRectangularItemCfg* backgr = new ot::GraphicsRectangularItemCfg;
+	backgr->setName(_name + "b");
+	backgr->setTitle(_name + "b");
+	backgr->setCornerRadius(5);
+	backgr->setSize(ot::Size2D(100, 50));
 
-	centralLayout->addChildItem(title);
-	centralLayout->addChildItem(midLayout, 1);
+	ot::GraphicsStackItemCfg* cfgTop = new ot::GraphicsStackItemCfg;
+	cfgTop->setName(_name + "s");
+	cfgTop->setTitle(_name + "s");
+	cfgTop->setSize(ot::Size2D(100, 50));
+	cfgTop->addItemTop(bot, false);
+	cfgTop->addItemTop(top, true);
 
-	return centralLayout;
+	ot::GraphicsStackItemCfg* cfg = new ot::GraphicsStackItemCfg;
+	cfg->setName(_name);
+	cfg->setTitle(_name);
+	cfg->setSize(ot::Size2D(100, 50));
+	cfg->addItemTop(backgr, false);
+	cfg->addItemTop(cfgTop, true);
+
+
+	return cfg;
 }
 
-ot::GraphicsItemCfg* createTestBlock2(const std::string& _name) {
-	ot::GraphicsVBoxLayoutItemCfg* centralLayout = new ot::GraphicsVBoxLayoutItemCfg;
+ot::GraphicsItemCfg* createTestBlockCfg2(const std::string& _name) {
+	ot::GraphicsRectangularItemCfg* r1 = new ot::GraphicsRectangularItemCfg;
+	r1->setSize(ot::Size2D(100, 50));
 
-	ot::GraphicsTextItemCfg* title = new ot::GraphicsTextItemCfg;
-	title->setName(_name);
-	title->setText(_name);
-	title->setBorder(ot::Border(ot::Color(rand() % 255, rand() % 255, rand() % 255), 2));
+	ot::GraphicsTextItemCfg * txt = new ot::GraphicsTextItemCfg;
+	txt->setText("Henlo");
 
-	ot::GraphicsHBoxLayoutItemCfg* midLayout = new ot::GraphicsHBoxLayoutItemCfg;
+	ot::GraphicsStackItemCfg* stack = new ot::GraphicsStackItemCfg;
+	stack->setName(_name);
+	stack->setTitle(_name);
+	stack->addItemTop(r1, true);
+	stack->addItemTop(txt, false);
 
-	ot::GraphicsRectangularItemCfg* leftRect = new ot::GraphicsRectangularItemCfg;
-	ot::GraphicsRectangularItemCfg* rightRect = new ot::GraphicsRectangularItemCfg;
-
-	midLayout->addChildItem(leftRect);
-	midLayout->addStrech(1);
-	midLayout->addChildItem(rightRect);
-
-	centralLayout->addChildItem(title);
-	centralLayout->addChildItem(midLayout, 1);
-
-	return centralLayout;
+	return stack;
 }
 
 void MainWindow::createOwnWidgets(void) {
 	ot::GraphicsView* editor = new ot::GraphicsView;
-	ot::GraphicsScene* sc = new ot::GraphicsScene;
-	editor->setScene(sc);
+	editor->setDropsEnabled(true);
 
 	m_tabWidget->addTab(editor, "Editor");
 
-	ot::GraphicsEditorPackage pckg("TestPackage", "Test title");
-	ot::GraphicsCollectionCfg* a = new ot::GraphicsCollectionCfg("A", "A");
-	ot::GraphicsCollectionCfg* a1 = new ot::GraphicsCollectionCfg("1", "1");
-	//ot::GraphicsCollectionCfg* a2 = new ot::GraphicsCollectionCfg("2", "2");
-	a->addChildCollection(a1);
-	a1->addItem(createTestBlock("Alpha 1"));
-	//a->addChildCollection(a2);
-	//a2->addItem(createTestBlock2("Alpha 2"));
-	pckg.addCollection(a);
+	ot::GraphicsCollectionCfg* col = new ot::GraphicsCollectionCfg("Test", "Test");
+	col->addItem(createTestBlockCfg1("T1"));
+	col->addItem(createTestBlockCfg2("T2"));
+	ot::GraphicsEditorPackage pckg("Test", "Test Editor");
+	pckg.addCollection(col);
 
-	OT_rJSON_createDOC(doc);
-	OT_rJSON_createValueObject(pckgObj);
-	pckg.addToJsonObject(doc, pckgObj);
+	
+	ot::GraphicsPickerDockWidget* dock = new ot::GraphicsPickerDockWidget("Picker");
+	dock->pickerWidget()->add(pckg);
 
-	ot::rJSON::add(doc, OT_ACTION_MEMBER, OT_ACTION_CMD_UI_GRAPHICSEDITOR_CreateEmptyGraphicsEditor);
-	ot::rJSON::add(doc, OT_ACTION_PARAM_GRAPHICSEDITOR_Package, pckgObj);
-
-	std::string str = ot::rJSON::toJSON(doc);
-	OT_LOG_D("L1: " + std::to_string(str.length()));
-
-	try {
-		OT_rJSON_parseDOC(docI, str.c_str());
-
-		ot::GraphicsEditorPackage pckg("", "");
-		OT_rJSON_val o = docI.GetObject();
-		OT_rJSON_val pckgObj = o[OT_ACTION_PARAM_GRAPHICSEDITOR_Package].GetObject();
-
-		pckg.setFromJsonObject(pckgObj);
-
-		OT_rJSON_createDOC(docTest);
-		OT_rJSON_createValueObject(pckgObjTest);
-		pckg.addToJsonObject(docTest, pckgObjTest);
-
-		ot::rJSON::add(docTest, OT_ACTION_MEMBER, OT_ACTION_CMD_UI_GRAPHICSEDITOR_CreateEmptyGraphicsEditor);
-		ot::rJSON::add(docTest, OT_ACTION_PARAM_GRAPHICSEDITOR_Package, pckgObjTest);
-
-		std::string strTest = ot::rJSON::toJSON(docTest);
-		OT_LOG_D("L2: " + std::to_string(strTest.length()));
-	}
-	catch (const std::exception& _e) {
-		QMessageBox msg(QMessageBox::Warning, "Error", _e.what(), QMessageBox::Ok);
-		msg.exec();
-	}
-	catch (...) {
-		OT_LOG_E("Unknown error");
-	}
-	OT_LOG_D("Custom done");
+	this->addDockWidget(Qt::LeftDockWidgetArea, dock);
 }
 
 void MainWindow::test(void) {
