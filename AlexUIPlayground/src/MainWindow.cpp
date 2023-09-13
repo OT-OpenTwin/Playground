@@ -1,4 +1,5 @@
 #include "MainWindow.h"
+#include "testcode.h"
 
 #include "OpenTwinCore/otAssert.h"
 #include "OpenTwinCore/SimpleFactory.h"
@@ -23,6 +24,8 @@
 #include <QtWidgets/qtextedit.h>
 #include <QtWidgets/qmenubar.h>
 #include <QtWidgets/qmessagebox.h>
+#include <QtWidgets/qlayout.h>
+#include <QtWidgets/qpushbutton.h>
 #include <QtWidgets/qgraphicswidget.h>
 #include <QtWidgets/qgraphicsproxywidget.h>
 #include <QtWidgets/qgraphicslinearlayout.h>
@@ -35,83 +38,84 @@ static MainWindow * g_instance{ nullptr };
 #include <sstream>
 
 ot::GraphicsItemCfg* createTestBlockCfg1(const std::string& _name) {
-	ot::GraphicsImageItemCfg* bot = new ot::GraphicsImageItemCfg;
-	bot->setSize(ot::Size2D(100, 60));
-	bot->setName(_name + "i");
-	bot->setTitle(_name + "i");
-	bot->setImagePath("Default/BugGreen");
-	bot->setGraphicsItemFlags(ot::GraphicsItemCfg::ItemIsConnectable);
 
-	ot::GraphicsTextItemCfg* topA = new ot::GraphicsTextItemCfg("Senor");
-	topA->setName(_name + "tA");
-	topA->setTitle(_name + "tA");
-
-	ot::GraphicsTextItemCfg* topB = new ot::GraphicsTextItemCfg("Buggo");
-	topB->setName(_name + "tB");
-	topB->setTitle(_name + "tB");
-
-	ot::GraphicsVBoxLayoutItemCfg* top = new ot::GraphicsVBoxLayoutItemCfg;
-	top->setName(_name + "t");
-	top->setTitle(_name + "t");
-	top->addChildItem(topA);
-	top->addChildItem(topB);
-	top->setSize(ot::Size2D(100, 50));
-
-	ot::GraphicsRectangularItemCfg* backgr = new ot::GraphicsRectangularItemCfg;
-	backgr->setName(_name + "b");
-	backgr->setTitle(_name + "b");
-	backgr->setCornerRadius(5);
-	backgr->setSize(ot::Size2D(100, 50));
-
-	ot::GraphicsStackItemCfg* cfgTop = new ot::GraphicsStackItemCfg;
-	cfgTop->setName(_name + "s");
-	cfgTop->setTitle(_name + "s");
-	cfgTop->setSize(ot::Size2D(100, 50));
-	cfgTop->addItemTop(bot, false);
-	cfgTop->addItemTop(top, true);
-
-	ot::GraphicsStackItemCfg* cfg = new ot::GraphicsStackItemCfg;
-	cfg->setName(_name);
-	cfg->setTitle(_name);
-	cfg->setSize(ot::Size2D(100, 50));
-	cfg->addItemTop(backgr, false);
-	cfg->addItemTop(cfgTop, true);
-
-
-	return cfg;
+	return nullptr;
 }
 
 ot::GraphicsItemCfg* createTestBlockCfg2(const std::string& _name) {
-	ot::GraphicsRectangularItemCfg* r1 = new ot::GraphicsRectangularItemCfg;
-	r1->setSize(ot::Size2D(100, 50));
 
-	ot::GraphicsTextItemCfg * txt = new ot::GraphicsTextItemCfg;
-	txt->setText("Henlo");
-
-	ot::GraphicsStackItemCfg* stack = new ot::GraphicsStackItemCfg;
-	stack->setName(_name);
-	stack->setTitle(_name);
-	stack->addItemTop(r1, true);
-	stack->addItemTop(txt, false);
-
-	return stack;
+	return nullptr;
 }
 
 void MainWindow::createOwnWidgets(void) {
 	ot::GraphicsView* editor = new ot::GraphicsView;
-	editor->setDropsEnabled(true);
 
 	m_tabWidget->addTab(editor, "Editor");
 
-	ot::GraphicsCollectionCfg* col = new ot::GraphicsCollectionCfg("Test", "Test");
-	col->addItem(createTestBlockCfg1("T1"));
-	col->addItem(createTestBlockCfg2("T2"));
-	ot::GraphicsEditorPackage pckg("Test", "Test Editor");
-	pckg.addCollection(col);
-
-	
 	ot::GraphicsPickerDockWidget* dock = new ot::GraphicsPickerDockWidget("Picker");
-	dock->pickerWidget()->add(pckg);
+
+	// Proxy
+	//{
+	//	QPushButton* btn1 = new QPushButton("X");
+
+	//	QWidget* w = new QWidget;
+	//	QGridLayout* lay = new QGridLayout(w);
+	//	lay->addWidget(btn1, 0, 0);
+
+	//	//QGraphicsProxyWidget* proxy = editor->getGraphicsScene()->addWidget(w);
+	//	//proxy->setFlag(QGraphicsItem::ItemIsMovable);
+	//	//proxy->setFlag(QGraphicsItem::ItemIsSelectable);
+	//}
+
+	// Rect item
+	/*{
+		QGraphicsWidget* gw = new QGraphicsWidget;
+		QGraphicsGridLayout* lay = new QGraphicsGridLayout;
+		gw->setLayout(lay);
+
+		ot::GraphicsRectangularItem* r1 = new ot::GraphicsRectangularItem;
+		ot::GraphicsRectangularItem* r2 = new ot::GraphicsRectangularItem;
+		r2->setRectangleSize(QSizeF(20., 20.));
+		ot::GraphicsRectangularItem* r3 = new ot::GraphicsRectangularItem;
+		ot::GraphicsRectangularItem* r4 = new ot::GraphicsRectangularItem;
+		ot::GraphicsRectangularItem* r5 = new ot::GraphicsRectangularItem;
+		ot::GraphicsRectangularItem* r6 = new ot::GraphicsRectangularItem;
+		r6->setRectangleSize(QSizeF(20., 20.));
+
+		ot::GraphicsTextItem* t1 = new ot::GraphicsTextItem;
+		t1->setPlainText("T1");
+
+		ot::GraphicsTextItem* t2 = new ot::GraphicsTextItem;
+		t2->setPlainText("Tes 2");
+
+		ot::GraphicsTextItem* t3 = new ot::GraphicsTextItem;
+		t3->setPlainText("Testing 3");
+
+		ot::GraphicsTextItem* t4 = new ot::GraphicsTextItem;
+		t4->setPlainText("Very long test 4");
+
+		ot::GraphicsEllipseItem* e1 = new ot::GraphicsEllipseItem;
+		e1->setRadius(5., 7.5);
+
+		ot::GraphicsEllipseItem* e2 = new ot::GraphicsEllipseItem;
+		e2->setRadius(7.5, 5.0);
+
+		lay->addItem(r1, 0, 0);
+		lay->addItem(t1, 0, 1);
+		lay->addItem(t2, 0, 2);
+		lay->addItem(r3, 0, 3);
+
+		lay->addItem(r4, 1, 0);
+		lay->addItem(t3, 1, 1);
+		lay->addItem(t4, 1, 2);
+		lay->addItem(r6, 1, 3);
+
+		gw->setFlags(QGraphicsItem::ItemIsSelectable | QGraphicsItem::ItemIsMovable);
+
+		editor->getGraphicsScene()->addItem(gw);
+	}*/
+
+	editor->getGraphicsScene()->addItem(new Window);
 
 	this->addDockWidget(Qt::LeftDockWidgetArea, dock);
 }
