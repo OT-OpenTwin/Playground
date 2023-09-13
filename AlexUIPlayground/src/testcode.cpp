@@ -1,16 +1,18 @@
 #include "testcode.h"
 
+#include "OTWidgets/GraphicsItem.h"
+
 Window::Window(QGraphicsWidget* parent) : QGraphicsWidget(parent) {
 	//! [0]
 	QGraphicsLinearLayout* windowLayout = new QGraphicsLinearLayout(Qt::Vertical);
 	QGraphicsLinearLayout* linear = new QGraphicsLinearLayout(windowLayout);
-	LayoutItem* item = new LayoutItem;
+	ot::GraphicsRectangularItem* item = new ot::GraphicsRectangularItem;
 	linear->addItem(item);
 	linear->setStretchFactor(item, 1);
 	//! [0]
 
 	//! [1]
-	item = new LayoutItem;
+	item = new ot::GraphicsRectangularItem;
 	linear->addItem(item);
 	linear->setStretchFactor(item, 3);
 	windowLayout->addItem(linear);
@@ -18,21 +20,21 @@ Window::Window(QGraphicsWidget* parent) : QGraphicsWidget(parent) {
 
 	//! [2]
 	QGraphicsGridLayout* grid = new QGraphicsGridLayout(windowLayout);
-	item = new LayoutItem;
+	item = new ot::GraphicsRectangularItem;
 	grid->addItem(item, 0, 0, 4, 1);
-	item = new LayoutItem;
+	item = new ot::GraphicsRectangularItem;
 	item->setMaximumHeight(item->minimumHeight());
 	grid->addItem(item, 0, 1, 2, 1, Qt::AlignVCenter);
-	item = new LayoutItem;
+	item = new ot::GraphicsRectangularItem;
 	item->setMaximumHeight(item->minimumHeight());
 	grid->addItem(item, 2, 1, 2, 1, Qt::AlignVCenter);
-	item = new LayoutItem;
+	item = new ot::GraphicsRectangularItem;
 	grid->addItem(item, 0, 2);
-	item = new LayoutItem;
+	item = new ot::GraphicsRectangularItem;
 	grid->addItem(item, 1, 2);
-	item = new LayoutItem;
+	item = new ot::GraphicsRectangularItem;
 	grid->addItem(item, 2, 2);
-	item = new LayoutItem;
+	item = new ot::GraphicsRectangularItem;
 	grid->addItem(item, 3, 2);
 	windowLayout->addItem(grid);
 	//! [2]
@@ -45,6 +47,12 @@ Window::Window(QGraphicsWidget* parent) : QGraphicsWidget(parent) {
 	this->setFlag(QGraphicsItem::ItemIsSelectable, true);
 	this->setFlag(QGraphicsItem::ItemIsMovable, true);
 }
+
+// #########################################################################################################################################################################
+
+// #########################################################################################################################################################################
+
+// #########################################################################################################################################################################
 
 LayoutItem::LayoutItem(QGraphicsItem* parent) : QGraphicsLayoutItem(), QGraphicsItem(parent),
 	m_pix(QPixmap(QLatin1String(":/images/f.png"))) 
