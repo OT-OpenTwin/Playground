@@ -1,7 +1,8 @@
 #pragma once
 
-#include <QtWidgets/qmainwindow.h>
 #include "OpenTwinCore/Logger.h"
+#include <QtWidgets/qmainwindow.h>
+
 
 class QVBoxLayout;
 class QLabel;

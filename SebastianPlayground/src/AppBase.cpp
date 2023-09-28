@@ -1,15 +1,16 @@
 #include "AppBase.h"
-#include "QtWidgets/qlabel.h"
-#include "QtWidgets/qpushbutton.h"
-#include "QtWidgets/qlayout.h"
-#include "QtGui/qpainter.h"
-#include "QtWidgets/qplaintextedit.h"
-#include "QtWidgets/qdockwidget.h"
+#include "TestCode.h"
+#include <QtWidgets/qlabel.h>
+#include <QtWidgets/qpushbutton.h>
+#include <QtWidgets/qlayout.h>
+#include <QtGui/qpainter.h>
+#include <QtWidgets/qplaintextedit.h>
+#include <QtWidgets/qdockwidget.h>
 #include <QtCore/qdatetime.h>
 #include <QtWidgets/qtabwidget.h>
 #include <QtWidgets/qmenubar.h>
 #include <QtWidgets/qaction.h>
-#include "TestCode.h"
+
 
 
 AppBase* AppBase::getInstance()
