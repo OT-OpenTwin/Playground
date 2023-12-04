@@ -1,7 +1,7 @@
 #pragma once
 
 // OpenTwin header
-#include "OpenTwinCore/Logger.h"
+#include "OTCore/Logger.h"
 
 #include <QtWidgets/qmainwindow.h>
 
@@ -9,6 +9,8 @@ class QDockWidget;
 class QTextEdit;
 class QTabWidget;
 class QMenuBar;
+
+namespace ot { class GraphicsView; };
 
 class MainWindow : public QMainWindow, public ot::AbstractLogNotifier
 {
@@ -43,15 +45,13 @@ private slots:
 private:
 	MainWindow();
 
-	QDockWidget *		m_outputDock;
 	QTextEdit *			m_output;
-
-	QDockWidget* m_logDock;
-	QTextEdit* m_log;
-
-	QTabWidget *		m_tabWidget;
+	QTextEdit*          m_log;
 
 	QMenuBar *			m_menuBar;
+
+	ot::GraphicsView*   m_gview;
+	int                 m_viewId;
 };
 
 #define AK_LOG(___message) MainWindow::instance()->appendOutput(___message)

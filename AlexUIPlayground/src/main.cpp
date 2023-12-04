@@ -4,7 +4,7 @@
 #include <QtWidgets/qapplication.h>
 #include <QtWidgets/qmessagebox.h>
 
-#include "OpenTwinCore/Logger.h"
+#include "OTCore/Logger.h"
 #include "OTWidgets/IconManager.h"
 
 int main(int argc, char *argv[])

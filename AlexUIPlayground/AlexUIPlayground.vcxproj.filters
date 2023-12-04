@@ -42,8 +42,10 @@
     <QtMoc Include="include\MainWindow.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="include\testcode.h">
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\testcode.h">
       <Filter>Header Files</Filter>
-    </QtMoc>
+    </ClInclude>
   </ItemGroup>
 </Project>
