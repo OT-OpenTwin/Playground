@@ -34,7 +34,7 @@
     <ClCompile Include="src\MainWindow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\TestCodes.cpp">
+    <ClCompile Include="src\TestCode.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -42,7 +42,7 @@
     <QtMoc Include="include\MainWindow.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="include\TestCodes.h">
+    <QtMoc Include="include\TestCode.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

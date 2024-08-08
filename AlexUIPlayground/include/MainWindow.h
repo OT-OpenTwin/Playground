@@ -5,7 +5,7 @@
 #pragma once
 
 // Playground header
-#include "TestCodes.h"
+#include "TestCode.h"
 
 // OpenTwin header
 #include "OTCore/Logger.h"

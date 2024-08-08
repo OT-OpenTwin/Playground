@@ -1,5 +1,5 @@
 // Playground header
-#include "TestCodes.h"
+#include "TestCode.h"
 #include "MainWindow.h"
 
 // OpenTwin header
