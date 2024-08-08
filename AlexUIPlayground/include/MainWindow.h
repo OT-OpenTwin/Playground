@@ -1,58 +1,56 @@
+// !                             ! \\
+// !   Do not modify this file   ! \\ 
+// !                             ! \\
+
 #pragma once
+
+// Playground header
+#include "TestCodes.h"
 
 // OpenTwin header
 #include "OTCore/Logger.h"
+#include "OTCore/OTClassHelper.h"
 
+// Qt header
 #include <QtWidgets/qmainwindow.h>
 
-class QDockWidget;
-class QTextEdit;
-class QTabWidget;
+class TestCode;
+class QThread;
 class QMenuBar;
-
-namespace ot { class GraphicsView; };
+namespace ot { class PlainTextEditView; }
 
 class MainWindow : public QMainWindow, public ot::AbstractLogNotifier
 {
     Q_OBJECT
+	OT_DECL_NOCOPY(MainWindow)
 public:
-	void createOwnWidgets(void);
+	static MainWindow* instance(void);
 
-public slots:
-	void test(void);
+	void initialize(void);
 
-	// #########################################################################################################################################
+	// ###########################################################################################################################################################################################################################################################################################################################
 
-	// #########################################################################################################################################
+	// Event handling
 
-	// #########################################################################################################################################
-
-public:
-	static MainWindow * instance(void);
 	virtual void closeEvent(QCloseEvent * _event) override;
-
-	void queueAppendOutput(const QString& _text);
 
 	//! @brief Called when the a log message was created
 	virtual void log(const ot::LogMessage& _message) override;
 
-public slots:
-	void appendOutput(const QString& _text);
+	// ###########################################################################################################################################################################################################################################################################################################################
 
-private slots:
+private Q_SLOTS:
 	void slotInitialize(void);
+	void slotLog(const ot::LogMessage& _message);
+
+	// ###########################################################################################################################################################################################################################################################################################################################
 
 private:
 	MainWindow();
 
-	QTextEdit *			m_output;
-	QTextEdit*          m_log;
-
-	QMenuBar *			m_menuBar;
-
-	ot::GraphicsView*   m_gview;
-	int                 m_viewId;
+	bool m_initialized;
+	QThread* m_mainThread;
+	TestCode m_testCode;
+	QMenuBar* m_menuBar;
+	ot::PlainTextEditView* m_logView;
 };
-
-#define AK_LOG(___message) MainWindow::instance()->appendOutput(___message)
-#define AK_LOG_E(___message) MainWindow::instance()->appendOutput(QString("[ERROR] ") + ___message)
