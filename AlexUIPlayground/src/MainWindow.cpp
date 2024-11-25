@@ -3,7 +3,6 @@
 // !                             ! \\
 
 // Playground header
-#include "TestCode.h"
 #include "MainWindow.h"
 
 // OpenTwin Core
@@ -30,7 +29,6 @@
 #include "OTWidgets/PropertyGridGroup.h"
 #include "OTWidgets/PlainTextEditView.h"
 #include "OTWidgets/WidgetViewManager.h"
-#include "OTWidgets/WidgetViewFactory.h"
 
 // OpenTwin Communication
 #include "OTCommunication/ActionTypes.h"
@@ -71,19 +69,54 @@ void MainWindow::initialize(void) {
 	QOpenGLWidget* newGLWidget = new QOpenGLWidget;
 	newGLWidget->setFixedSize(1, 1);
 
-	// Create menu bar
-	m_menuBar = new QMenuBar;
-	m_menuBar->setCornerWidget(newGLWidget, Qt::TopLeftCorner);
-	this->setMenuBar(m_menuBar);
 
-	// Add dock toggle action
-	QAction* viewsAction = ot::WidgetViewManager::instance().getDockToggleAction();
-	m_menuBar->addAction(viewsAction);
+
+	{
+		ot::PlainTextEditView* testView = new ot::PlainTextEditView;
+		testView->setViewData(ot::WidgetViewBase("Center", "Center", ot::WidgetViewBase::Default, ot::WidgetViewBase::ViewText, ot::WidgetViewBase::ViewIsCentral));
+		ot::WidgetViewManager::instance().addView(ot::BasicServiceInformation(), testView);
+	}
+	{
+		ot::PlainTextEditView* testView = new ot::PlainTextEditView;
+		testView->setViewData(ot::WidgetViewBase("Left", "Left", ot::WidgetViewBase::Left, ot::WidgetViewBase::ViewText, ot::WidgetViewBase::ViewIsSide));
+		ot::WidgetViewManager::instance().addView(ot::BasicServiceInformation(), testView);
+	}
+	{
+		ot::PlainTextEditView* testView = new ot::PlainTextEditView;
+		testView->setViewData(ot::WidgetViewBase("Right", "Right", ot::WidgetViewBase::Right, ot::WidgetViewBase::ViewText, ot::WidgetViewBase::ViewIsSide));
+		ot::WidgetViewManager::instance().addView(ot::BasicServiceInformation(), testView);
+	}
+	{
+		ot::PlainTextEditView* testView = new ot::PlainTextEditView;
+		testView->setViewData(ot::WidgetViewBase("Left2", "Left2", ot::WidgetViewBase::Left, ot::WidgetViewBase::ViewText, ot::WidgetViewBase::ViewIsSide));
+		ot::WidgetViewManager::instance().addView(ot::BasicServiceInformation(), testView);
+	}
+	{
+		ot::PlainTextEditView* testView = new ot::PlainTextEditView;
+		testView->setViewData(ot::WidgetViewBase("Right2", "Right2", ot::WidgetViewBase::Right, ot::WidgetViewBase::ViewText, ot::WidgetViewBase::ViewIsSide));
+		ot::WidgetViewManager::instance().addView(ot::BasicServiceInformation(), testView);
+	}
+	{
+		ot::PlainTextEditView* testView = new ot::PlainTextEditView;
+		testView->setViewData(ot::WidgetViewBase("Center2", "Center2", ot::WidgetViewBase::Default, ot::WidgetViewBase::ViewText, ot::WidgetViewBase::ViewIsCentral));
+		ot::WidgetViewManager::instance().addView(ot::BasicServiceInformation(), testView);
+	}
+
+
+
+
+
+
+
+
+
+
+
+
 
 	// Create output
 	m_logView = new ot::PlainTextEditView;
-	m_logView->setViewData(ot::WidgetViewBase("Output", "Output", ot::WidgetViewBase::Bottom, ot::WidgetViewBase::ViewIsSide));
-	m_logView->setViewIsProtected(true);
+	m_logView->setViewData(ot::WidgetViewBase("Output", "Output", ot::WidgetViewBase::Bottom, ot::WidgetViewBase::ViewText, ot::WidgetViewBase::ViewIsSide));
 	m_logView->getViewDockWidget()->setFeature(ads::CDockWidget::DockWidgetClosable, true);
 	m_logView->setReadOnly(true);
 	m_logView->setAutoScrollToBottomEnabled(true);
@@ -106,7 +139,7 @@ void MainWindow::initialize(void) {
 		}
 	}
 
-	if (s.contains("WindowState")) ot::WidgetViewManager::instance().restoreState(s.value("WindowState", QByteArray()).toByteArray().toStdString());
+	//if (s.contains("WindowState")) ot::WidgetViewManager::instance().restoreState(s.value("WindowState", QByteArray()).toByteArray().toStdString());
 
 	if (isMax) {
 		this->showMaximized();
@@ -141,7 +174,7 @@ void MainWindow::log(const ot::LogMessage& _message) {
 
 void MainWindow::slotInitialize(void) {
 	try {
-		m_testCode.initialize(this);
+		
 	}
 	catch (const std::exception& _e) {
 		QMessageBox msg(QMessageBox::Critical, "Error", "Orror while creating own widgets:\n" + QString(_e.what()), QMessageBox::Ok | QMessageBox::StandardButton::Close);
@@ -163,7 +196,7 @@ void MainWindow::slotLog(const ot::LogMessage& _message) {
 }
 
 MainWindow::MainWindow() 
-	: m_mainThread(QThread::currentThread()), m_initialized(false), m_menuBar(nullptr), m_logView(nullptr)
+	: m_mainThread(QThread::currentThread()), m_initialized(false), m_logView(nullptr)
 {
 	
 }

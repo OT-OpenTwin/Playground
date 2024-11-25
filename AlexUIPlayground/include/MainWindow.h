@@ -4,9 +4,6 @@
 
 #pragma once
 
-// Playground header
-#include "TestCode.h"
-
 // OpenTwin header
 #include "OTCore/Logger.h"
 #include "OTCore/OTClassHelper.h"
@@ -50,7 +47,5 @@ private:
 
 	bool m_initialized;
 	QThread* m_mainThread;
-	TestCode m_testCode;
-	QMenuBar* m_menuBar;
 	ot::PlainTextEditView* m_logView;
 };
